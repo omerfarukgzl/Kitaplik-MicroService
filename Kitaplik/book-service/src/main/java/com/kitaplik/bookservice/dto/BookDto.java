@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class BookDto {
     private BookIdDto id;
     private String title;
-    private String bookYear;
+    private Integer bookYear;
     private String author;
     private String pressName;
 

@@ -76,6 +76,27 @@ Not: Service'in scale edilme işleminde scale edilmiş her service'in register i
 
 
 
+***********************************************************************************************************************************************************************************************************
+
+
+Strating MicroService
+
+Kitaplık adında bir klasor açtık ve start.spring.io dan servicelerimizi ayrı ayrı oluşturup indirdik ve kitaplık klasorune attık.
+Servicelerin dependency'lerinde netflix-eureka-client ve openFeign kullandık.
+proje çalıştırmak için kitaplık klasorunu ide de açtık.
+Böylece Kitaplık klasoru adı altında ayrı ayrı projelerımız(micro servicelerimiz oluştu)
+    Bu işlemi bir new project açıp içerisinde new module diyerek de oluşturabilirdik.
+    ve dependency leri parent a bağlayarak da biribirlerini kullanan bağlı dependencyler oluşturabilidrdik
+
+
+
+
+
+
+
+
+
+
 
      */
 }

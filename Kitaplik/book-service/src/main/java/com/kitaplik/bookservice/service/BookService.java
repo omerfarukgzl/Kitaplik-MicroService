@@ -2,6 +2,7 @@ package com.kitaplik.bookservice.service;
 
 import com.kitaplik.bookservice.dto.BookDto;
 import com.kitaplik.bookservice.dto.BookIdDto;
+import com.kitaplik.bookservice.dto.converter.BookDtoConverter;
 import com.kitaplik.bookservice.exception.BookNotFoundExcepiton;
 import com.kitaplik.bookservice.model.Book;
 import com.kitaplik.bookservice.repository.BookRepository;
@@ -14,29 +15,35 @@ import java.util.stream.Collectors;
 @Service
 public class BookService {
     private final BookRepository bookRepository;
-    private final ModelMapper modelMapper;
+   private final BookDtoConverter bookDtoConverter;
 
-    public BookService(BookRepository bookRepository, ModelMapper modelMapper) {
+    public BookService(BookRepository bookRepository ,BookDtoConverter bookDtoConverter) {
         this.bookRepository = bookRepository;
-        this.modelMapper = modelMapper;
+        this.bookDtoConverter = bookDtoConverter;
     }
 
 
     public List<BookDto> getAllBooks()
     {
-        List<Book> books = bookRepository.findAll();
-        List<BookDto> bookDto= books.stream().map(book -> modelMapper.map(books,BookDto.class)).collect(Collectors.toList());
-        return bookDto;
+        return bookRepository.findAll()
+                .stream()
+                .map(bookDtoConverter::convert)
+                .collect(Collectors.toList());
     }
 
     public BookIdDto findByIsbn(String isbn)
     {
-
      return bookRepository.findBookByIsbn(isbn)
              .map(book -> new BookIdDto(book.getId(),book.getIsbn()))
              .orElseThrow(() -> new BookNotFoundExcepiton("Book could not found by isbn: " + isbn));
     }
 
+    public BookDto findById(String id)
+    {
+        return bookRepository.findById(id)
+                .map(bookDtoConverter::convert)
+                .orElseThrow(() -> new BookNotFoundExcepiton("Book could not found by id: " + id));
+    }
 
 
 

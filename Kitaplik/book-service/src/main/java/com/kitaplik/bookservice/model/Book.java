@@ -1,16 +1,15 @@
 package com.kitaplik.bookservice.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.GenericGenerators;
+
 
 import javax.persistence.*;
 
 @Entity
 @Table(name="books")
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Book {
@@ -22,7 +21,7 @@ public class Book {
     )
     private String id;
     private String title;
-    private String bookYear;
+    private Integer bookYear;
     private String author;
     private String pressName;
     private String isbn;

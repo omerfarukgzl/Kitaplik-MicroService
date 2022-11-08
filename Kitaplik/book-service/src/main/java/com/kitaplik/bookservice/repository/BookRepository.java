@@ -10,7 +10,9 @@ import java.util.Optional;
 public interface BookRepository extends JpaRepository<Book,String> {
 
 
-    Optional<Book> findBookByIsbn(String isbn);
+    Optional<Book> findBookByIsbn(String isbn);//custom find by
+    // özel bir arama işlemi yapan db fonksiyonu
+    // isbn ile book arama işlemi
 
 
 }
