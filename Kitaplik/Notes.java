@@ -89,8 +89,25 @@ Böylece Kitaplık klasoru adı altında ayrı ayrı projelerımız(micro servic
     ve dependency leri parent a bağlayarak da biribirlerini kullanan bağlı dependencyler oluşturabilidrdik
 
 
+Book Service oluşturulması:
+
+book service 3 endpointe sahip bir servis.
+Tüm kitapları getiren
+isbn ile sorgulayarak kitap id sini getiren
+id ile sorgulayarak kitabın bilgilerini getiren
+          3 endpointe sahip
+Gerekli service repository ve controller işlemleri yapıldı.
+Db olarak h2 db kullanıldı. property leri applicarion.properties dosyasında verildi
+Table oluşturmak için öncelikle spring.jpa.hibernate.ddl-auto=create-auto kullanıldı
+daha sonraki çalıştırmada güncelleme işlemleri olacağı için spring.jpa.hibernate.ddl-auto=update kullanıldı.
+db ye ilk eklene table bilgileri BookServiceApplication classında run methodunda uygulama ayağı kalkarken static olarak verildi
 
 
+Library Service oluşturulması:
+
+Eğer book service indeki db'nin içerisindeki book verilerini alıp direk library db ye atarsam library db şişer
+    ve book service de bu model üzerine yapılan değişiklikten library service de etkilenir
+        Not: Yapılan bir değişiklik diğer microservice de de değişim gerektiriyorsa o ms değildir
 
 
 
