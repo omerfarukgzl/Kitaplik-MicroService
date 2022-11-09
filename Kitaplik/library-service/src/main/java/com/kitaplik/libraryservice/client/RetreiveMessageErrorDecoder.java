@@ -1,12 +1,17 @@
 package com.kitaplik.libraryservice.client;
+
+
 import com.kitaplik.libraryservice.excepiton.BookNotFoundException;
 import com.kitaplik.libraryservice.excepiton.ExceptionMessage;
 import feign.Response;
 import feign.codec.ErrorDecoder;
+import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpStatus;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+
 public class RetreiveMessageErrorDecoder implements ErrorDecoder {
 
     private final ErrorDecoder errorDecoder = new Default();

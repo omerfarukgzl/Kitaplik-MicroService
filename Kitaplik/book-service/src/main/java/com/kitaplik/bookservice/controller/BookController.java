@@ -38,9 +38,9 @@ public class BookController {
     }
 
     @GetMapping("/book/{id}")
-    public ResponseEntity<BookDto> getBookFindById(@PathVariable @NotEmpty String id)
+    public ResponseEntity<BookDto> getBookById(@PathVariable @NotEmpty String id)
     {
-        BookDto bookDto = bookService.findById(id);
+        BookDto bookDto = bookService.findBookDetailsById(id);
         return ResponseEntity.ok(bookDto);
     }
 }

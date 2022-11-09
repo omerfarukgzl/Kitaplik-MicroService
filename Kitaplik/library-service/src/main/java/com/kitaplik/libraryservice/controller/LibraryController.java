@@ -1,5 +1,6 @@
 package com.kitaplik.libraryservice.controller;
 
+import com.kitaplik.libraryservice.dto.AddBookRequest;
 import com.kitaplik.libraryservice.dto.LibraryDto;
 import com.kitaplik.libraryservice.service.LibraryService;
 import org.hibernate.cfg.Environment;
@@ -20,14 +21,14 @@ import org.slf4j.LoggerFactory;
 public class LibraryController {
     Logger logger = LoggerFactory.getLogger(LibraryController.class);
     private final LibraryService libraryService;
-    private final Environment environment;
+   // private final Environment environment;
 
-    @Value("${library.service.count}")
-    private String count;
+   /* @Value("${library.service.count}")
+    private String count;*/
 
-    public LibraryController(LibraryService libraryService, Environment environment) {
+    public LibraryController(LibraryService libraryService) {
         this.libraryService = libraryService;
-        this.environment = environment;
+        //this.environment = environment;
     }
 
     @GetMapping("{id}")
@@ -37,7 +38,7 @@ public class LibraryController {
 
     @PostMapping
     public ResponseEntity<LibraryDto> createLibrary() {
-        logger.info("Library created on port number " + environment.getProperty("local.server.port"));
+       // logger.info("Library created on port number " + environment.getProperty("local.server.port"));
 
         return ResponseEntity.ok(libraryService.createLibrary());
     }
@@ -53,8 +54,8 @@ public class LibraryController {
         return ResponseEntity.ok(libraryService.getAllLibraries());
     }
 
-    @GetMapping("/count")
+  /*  @GetMapping("/count")
     public ResponseEntity<String> getCount() {
         return ResponseEntity.ok("Library count is" + count);
-    }
+    }*/
 }

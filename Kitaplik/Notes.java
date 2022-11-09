@@ -91,24 +91,29 @@ Böylece Kitaplık klasoru adı altında ayrı ayrı projelerımız(micro servic
 
 Book Service oluşturulması:
 
-book service 3 endpointe sahip bir servis.
-Tüm kitapları getiren
-isbn ile sorgulayarak kitap id sini getiren
-id ile sorgulayarak kitabın bilgilerini getiren
-          3 endpointe sahip
-Gerekli service repository ve controller işlemleri yapıldı.
-Db olarak h2 db kullanıldı. property leri applicarion.properties dosyasında verildi
-Table oluşturmak için öncelikle spring.jpa.hibernate.ddl-auto=create-auto kullanıldı
-daha sonraki çalıştırmada güncelleme işlemleri olacağı için spring.jpa.hibernate.ddl-auto=update kullanıldı.
-db ye ilk eklene table bilgileri BookServiceApplication classında run methodunda uygulama ayağı kalkarken static olarak verildi
+    book service 3 endpointe sahip bir servis.
+    Tüm kitapları getiren
+    isbn ile sorgulayarak kitap id sini getiren
+    id ile sorgulayarak kitabın bilgilerini getiren
+              3 endpointe sahip
+    Gerekli service repository ve controller işlemleri yapıldı.
+    Db olarak h2 db kullanıldı. property leri applicarion.properties dosyasında verildi
+    Table oluşturmak için öncelikle spring.jpa.hibernate.ddl-auto=create-auto kullanıldı
+    daha sonraki çalıştırmada güncelleme işlemleri olacağı için spring.jpa.hibernate.ddl-auto=update kullanıldı.
+    db ye ilk eklene table bilgileri BookServiceApplication classında run methodunda uygulama ayağı kalkarken static olarak verildi
 
 
 Library Service oluşturulması:
 
-Eğer book service indeki db'nin içerisindeki book verilerini alıp direk library db ye atarsam library db şişer
-    ve book service de bu model üzerine yapılan değişiklikten library service de etkilenir
-        Not: Yapılan bir değişiklik diğer microservice de de değişim gerektiriyorsa o ms değildir
+    Eğer book service indeki db'nin içerisindeki book verilerini alıp direk library db ye atarsam library db şişer
+        ve book service de bu model üzerine yapılan değişiklikten library service de etkilenir
+            Not: Yapılan bir değişiklik diğer microservice de de değişim gerektiriyorsa o ms değildir
+            !! Bundan dolayı Library model de book listesi tutmak yerine string bbokId listesi tuttuk ve book ıd lerine gore buraya ekleyerek (book-service den çekerek) verileri elde edeceğiz
 
+    Daha sonra service ksımında kutuphane getirilmesi methodunda library-service feign clint ile haberleşeceği için feign client oluşturduk.
+        Adı genel olarak hangi service ulaşılacaksa o servicein adı ile başlar. Bir interface dir
+    Bu interfaci bir feign client haline getiren annotation @FeignClient dır.
+    @FeignClient(name="book-service",path="v1/book" ) name="book-service" sayesinde eurekadan sunucu bilgilerini çekip hangi path den çalışacağından sonra çalışıyor
 
 
 

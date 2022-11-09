@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddBookRequest {
-    private String id;
-    private String isbn;
+    private String id;//library id
+    private String isbn;//book isbn
 }

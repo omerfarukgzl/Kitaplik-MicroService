@@ -38,7 +38,7 @@ public class BookService {
              .orElseThrow(() -> new BookNotFoundExcepiton("Book could not found by isbn: " + isbn));
     }
 
-    public BookDto findById(String id)
+    public BookDto findBookDetailsById(String id)
     {
         return bookRepository.findById(id)
                 .map(bookDtoConverter::convert)
