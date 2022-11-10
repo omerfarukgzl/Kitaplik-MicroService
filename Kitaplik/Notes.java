@@ -117,6 +117,125 @@ Library Service oluşturulması:
 
 
 
+    *********************************  Service:  *******************************************
+
+
+     public LibraryDto getAllBooksInLibraryById(String id) {
+        Library library = libraryRepository.findById(id)
+                .orElseThrow(() -> new LibraryNotFoundException("Library could not found by id: " + id));
+
+        LibraryDto libraryDto = new LibraryDto(library.getId(),library.getUserBook().stream().map(bookServiceClient::getBookById).map(ResponseEntity::getBody).collect(Collectors.toList()));
+        return libraryDto;
+    }
+        Bu methodda controllerdan gelen library içindeki tüm kitapları listeleme isteği çalışmaktadır.
+        Methoda gönderilen istek parametresi ise library id sidir.
+        db den id ye bağlı olan library bulunur.
+        Daha sonra bulunan library verileri library Dto ya çevirilip kullanıcıya gönderilir.
+        Dto converter işleminde library içindeki userBook listesi alınır
+        ve daha sonra userbookListesindeki id lerini kullanarak sırası ile bookservice den gelen o i de ye sahip book ların detayları BookDto olarak oluştur.
+        stream().map().map().collect()
+
+        library.getUserBook().stream().map(bookServiceClient::getBookById).map(ResponseEntity::getBody).collect(Collectors.toList()))
+
+            ikinci map kullanmamızın sebebi tek map li olduğu zaman client dan bize responseEntity (json dönecektir) bu jsonun BookDto ya dönüşmesi için
+                ResponseEntity den dönen jsonun get body sine map işlemi yapmamız gerekir.
+
+
+
+
+    public LibraryDto createLibrary() {
+        Library newLibrary = libraryRepository.save(new Library());
+        return new LibraryDto(newLibrary.getId(),null);
+    }
+     methodu ise yeni library oluşturur.(içindeki book listesi başta nulldur sonra eklenirse bu null değişir)
+
+
+
+    public void addBookToLibrary(AddBookRequest request) {
+        String bookId = bookServiceClient.getBookByIsbn(request.getIsbn()).getBody().getId();
+
+        Library library = libraryRepository.findById(request.getId())
+                .orElseThrow(() -> new LibraryNotFoundException("Library could not found by id: " + request.getId()));
+
+        library.getUserBook()
+                .add(bookId);
+
+        libraryRepository.save(library);
+    }
+        Methodu Library'e book ekleme işlemini yapar.Bu ekleme işleminde eklenecek olan library id si ve library'e  eklenecek olan book id si json formatında pyt isteği olarak gönderilir.
+         gönderilen library id den o  library db den bulunur. Dah sonra library-service micro service i book-service microservisinden eklenecek olan kitabı id parametresiyle bulur.
+         ve bulunan library'nin bookUser listesine bulunan book id verisi eklenir. ve db ye kaydedilir.
+
+
+
+
+    public List<String> getAllLibraries() {
+
+        return libraryRepository.findAll()
+                .stream()
+                .map(l -> l.getId())
+                .collect(Collectors.toList());
+    }
+
+        Bu methodda ise tüm library lerin id leri listelenir.
+
+
+
+
+    *********************************  BookServiceClient:  *******************************************
+
+    İnterface dir. Methodların gövdeleri yazılmaz. Book service ms in aynı controller methodalrı alınıp içi boş bir şekilde koyulabilir
+    Library service ms in book service ms e istek atarak haberleşmesini sağlar
+    istek atan feignclient dir ( LibraryServiceApplication 'a  @ FeignClientEnable annottaionu eklenir.)
+    istek alan eureakeclien dir(BookServiceApplication'a @ EurekaServerClientEnable annotationu eklenir)
+
+   @GetMapping("/isbn/{isbn}")
+   // @CircuitBreaker(name = "getBookByIsbnCircuitBreaker", fallbackMethod = "getBookFallback")
+    ResponseEntity<BookIdDto> getBookByIsbn(@PathVariable(value = "isbn") String isbn);
+
+    methodu library-service den gelen isbn no su ile book bilgisini book service ms den elde etmeye yarar.
+
+
+    @GetMapping("/book/{bookId}")
+   // @CircuitBreaker(name = "getBookByIdCircuitBreaker", fallbackMethod = "getBookByIdFallback")
+    ResponseEntity<BookDto> getBookById(@PathVariable(value = "bookId") String bookId);
+
+    methodu library-service den gelen id no su ile book bilgisini book service ms den elde etmeye yarar.
+
+
+
+
+    *********************************  Dto:  *******************************************
+
+    AddBookRequest =======> kullanıcının put isteği gönderirken json formatında gönderilecek olan request classı
+
+    BookDto        =======> Book Service de BookDto var zaten neden onu kullanmadık?
+                            BookService de olan dto book-service in cliente göstermek istediği dto dur
+                            Fakat biz library-service'ne istek attığımızda direk olarak book-service ms den alınan bookDto yu göstemek istemeyibiliriz
+                            Bundan dolayı ms den aldığımız bilgiler için de dto oluşturmalıyız.(Veriler aynı olsa bile)
+
+    BookIdDto      =======> BookDto için yazılanlar BookIdDto içinde geçerlidir.
+
+    LibraryDto     =======> Library entisinden alınan veriler clienta döndürüleceği zaman bu dto ya dönüştürülü gönderilir.
+                            !! Library içerisinde String tipinde bir list varken neden bu dto da BookDto(Library-service bookDto) tipinde bir liste var.
+                                Çünkü Library entity sinde db de saklanacağı için Book listesi tutmak istemedik. Bunun sebebi db yi şişirecekti.
+                                    Bunun yerine book id string listesi tuttuk ve kullanıcıya response edileceği zaman LibraryDto ile book id ler yerine bookDto tipinde liste dmnerek kullanıcya library içerisindeki book bilgileirinide dönmüş olduk.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

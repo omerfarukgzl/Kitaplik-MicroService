@@ -48,7 +48,6 @@ public class LibraryService {
         libraryRepository.save(library);
     }
 
-
     public List<String> getAllLibraries() {
 
         return libraryRepository.findAll()
