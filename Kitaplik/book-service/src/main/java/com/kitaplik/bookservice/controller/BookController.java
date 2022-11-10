@@ -2,13 +2,11 @@ package com.kitaplik.bookservice.controller;
 
 import com.kitaplik.bookservice.dto.BookDto;
 import com.kitaplik.bookservice.dto.BookIdDto;
+import com.kitaplik.bookservice.dto.CreateBookRequest;
 import com.kitaplik.bookservice.service.BookService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -35,6 +33,12 @@ public class BookController {
     {
         BookIdDto bookIdDto = bookService.findByIsbn(isbn);
         return ResponseEntity.ok(bookIdDto);
+    }
+    @PostMapping("/book")
+    public ResponseEntity<BookDto> createBook(@RequestBody CreateBookRequest bookRequest)
+    {
+        BookDto bookDto1 = bookService.createBook(bookRequest);
+        return ResponseEntity.ok(bookDto1);
     }
 
     @GetMapping("/book/{id}")

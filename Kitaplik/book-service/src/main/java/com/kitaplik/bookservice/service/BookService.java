@@ -2,6 +2,7 @@ package com.kitaplik.bookservice.service;
 
 import com.kitaplik.bookservice.dto.BookDto;
 import com.kitaplik.bookservice.dto.BookIdDto;
+import com.kitaplik.bookservice.dto.CreateBookRequest;
 import com.kitaplik.bookservice.dto.converter.BookDtoConverter;
 import com.kitaplik.bookservice.exception.BookNotFoundExcepiton;
 import com.kitaplik.bookservice.model.Book;
@@ -9,6 +10,7 @@ import com.kitaplik.bookservice.repository.BookRepository;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +33,18 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
+    public BookDto createBook(@Valid CreateBookRequest createBookRequest)
+    {
+        Book book= new Book("",
+                createBookRequest.getTitle(),
+                createBookRequest.getBookYear(),
+                createBookRequest.getAuthor(),
+                createBookRequest.getPressName(),
+                createBookRequest.getIsbn());
+        BookDto bookDto = bookDtoConverter.convert(bookRepository.save(book));
+        return bookDto;
+
+    }
     public BookIdDto findByIsbn(String isbn)
     {
      return bookRepository.findBookByIsbn(isbn)

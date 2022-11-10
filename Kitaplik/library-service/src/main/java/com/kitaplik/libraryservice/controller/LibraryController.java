@@ -1,5 +1,6 @@
 package com.kitaplik.libraryservice.controller;
 
+import com.kitaplik.libraryservice.dto.CreateBookRequest;
 import com.kitaplik.libraryservice.dto.AddBookRequest;
 import com.kitaplik.libraryservice.dto.LibraryDto;
 import com.kitaplik.libraryservice.service.LibraryService;
@@ -41,6 +42,12 @@ public class LibraryController {
        // logger.info("Library created on port number " + environment.getProperty("local.server.port"));
 
         return ResponseEntity.ok(libraryService.createLibrary());
+    }
+    @PostMapping("{id}")
+    public ResponseEntity<LibraryDto> createBookToLibrary(@RequestBody CreateBookRequest createBookRequest,@PathVariable String id) {
+        // logger.info("Library created on port number " + environment.getProperty("local.server.port"));
+           LibraryDto libraryDto= libraryService.createBookToLibrary(createBookRequest,id);
+        return ResponseEntity.ok(libraryDto);
     }
 
     @PutMapping
