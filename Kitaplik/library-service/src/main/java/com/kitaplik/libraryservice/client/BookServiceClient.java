@@ -37,8 +37,10 @@ public interface BookServiceClient {
     ResponseEntity<BookIdDto> getBookByIsbn(@PathVariable(value = "isbn") String isbn);
 
 
-    @PostMapping("/book")
-    ResponseEntity<BookDto> createBook(@RequestBody CreateBookRequest bookRequest);
+/*
+  Denemek için yapıldı
+  @PostMapping("/book")
+    ResponseEntity<BookDto> createBook(@RequestBody CreateBookRequest bookRequest);*/
 
     @GetMapping("/book/{bookId}")
    // @CircuitBreaker(name = "getBookByIdCircuitBreaker", fallbackMethod = "getBookByIdFallback")

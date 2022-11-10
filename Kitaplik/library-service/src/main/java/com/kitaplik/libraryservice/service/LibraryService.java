@@ -51,7 +51,9 @@ public class LibraryService {
     }
 
 
-    public LibraryDto createBookToLibrary(CreateBookRequest request,String id) {
+   /*
+   Denemek için yapıldı
+   public LibraryDto createBookToLibrary(CreateBookRequest request,String id) {
 
         Library library = libraryRepository.findById(id)
                 .orElseThrow(() -> new LibraryNotFoundException("Library could not found by id: " + id));
@@ -63,7 +65,7 @@ public class LibraryService {
         libraryRepository.save(library);
 
         return new LibraryDto(library.getId(),library.getUserBook().stream().map(bookServiceClient::getBookById).map(ResponseEntity::getBody).collect(Collectors.toList()));
-    }
+    }*/
 
     public List<String> getAllLibraries() {
 

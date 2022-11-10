@@ -43,12 +43,14 @@ public class LibraryController {
 
         return ResponseEntity.ok(libraryService.createLibrary());
     }
+   /*
+    Denemek için yapıldı
     @PostMapping("{id}")
     public ResponseEntity<LibraryDto> createBookToLibrary(@RequestBody CreateBookRequest createBookRequest,@PathVariable String id) {
         // logger.info("Library created on port number " + environment.getProperty("local.server.port"));
            LibraryDto libraryDto= libraryService.createBookToLibrary(createBookRequest,id);
         return ResponseEntity.ok(libraryDto);
-    }
+    }*/
 
     @PutMapping
     public ResponseEntity<Void> addBookToLibrary(@RequestBody AddBookRequest request) {
