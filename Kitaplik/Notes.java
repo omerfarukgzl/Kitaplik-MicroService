@@ -239,8 +239,12 @@ Library Service oluşturulması:
                     |                                                            ==========================>  Change the request path ( yada başka bir yere yönlendirilebilir)
                     |
                    \/
-            Exception Handling
+            Exception Handling                                                   ==========================> create another process
                     Isbn geçersizdir bilgisi
+
+
+                                                                                 ==========================> throw exception
+
 
 
                                                     Ne olursa olsun book not found exception olursa program devam etmeli
@@ -354,6 +358,62 @@ Ve bu errorDecoder ın çalışması için libraryApplicationPropperties de bean
 oluşturmasaydık default olarak 500 ınternal server error alıcaktık
 
 ve bu hataları feignlog seviyesinde de ayarlayabiliriz
+
+
+
+
+
+
+
+*************************************************  Api gateway  *********************************************************************
+
+
+Library service gelen istekler artmaya başladı ve istek yoğunluğunda 2 kişi daha istek yaptı ve app bu isteklere cevap vermeyecek duruma geldi
+Bu durumda library service scale edilmesi , yeni bir instance oluşturulması gerekli.
+fakat yeni bir instance nasıl oluşturum ? bu client dan gelen istek yeni instanmce'a nasıl ulaşır?
+
+   öncelikle yeni bir instance oluşturulacağı zaman portunu değiştirmemiz gerkeir aynı porttan ikinci instance ayağı kalkmaz.
+    ve bu yeni instance için  değişen port bilgisi clienta bildirilmeli
+    bu noktada api gateway devreye girmeli.
+
+
+
+***********Load Balancing**********
+    Tüm gelen istekler apigateway'e gelir.
+    ve gelen istek api gateway in içinde bulunduğu özellikden biri olan load balancing ile bu isteği hangi instance vermeliyimin kararını farklı algor göre verir ve yönlendirir(örneğin round robin)
+
+**********Security Layer ***********
+    ve apigateway in diğer özelliği olan security katmanı tüm ms lerin security katmanlarını içerebilir.
+    istek gelir istekde token vardır  api getaway bağlı olduğu sunucudan tokenı doğrular ve isteği devam ettiri.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
