@@ -108,7 +108,9 @@ Library Service oluşturulması:
     Eğer book service indeki db'nin içerisindeki book verilerini alıp direk library db ye atarsam library db şişer
         ve book service de bu model üzerine yapılan değişiklikten library service de etkilenir
             Not: Yapılan bir değişiklik diğer microservice de de değişim gerektiriyorsa o ms değildir
-            !! Bundan dolayı Library model de book listesi tutmak yerine string bbokId listesi tuttuk ve book ıd lerine gore buraya ekleyerek (book-service den çekerek) verileri elde edeceğiz
+                ve Bookdb yi Library Db de tutsaydım o zaman bookDb ye ne gerek vardı?
+            !! Bundan dolayı Library model de book listesi tutmak yerine string bookId listesi tuttuk ve book ıd lerine gore buraya ekleyerek (book-service den çekerek) verileri elde edeceğiz
+                Service arasında id paylaşımı yapacağız
 
     Daha sonra service ksımında kutuphane getirilmesi methodunda library-service feign clint ile haberleşeceği için feign client oluşturduk.
         Adı genel olarak hangi service ulaşılacaksa o servicein adı ile başlar. Bir interface dir
@@ -227,12 +229,131 @@ Library Service oluşturulması:
 
 
 
+    *********************************  BookNotFoundException:  *******************************************
+
+                                                                                 ==========================>  Create default value ( örneğin benim db de yoktur http://isbn.library.org/ 'a istek de bulunup doğrulanabilir)
+
+            Stop process Inform User<===================Book Not Found Excepiton        new process
+                    |
+                    |
+                    |                                                            ==========================>  Change the request path ( yada başka bir yere yönlendirilebilir)
+                    |
+                   \/
+            Exception Handling
+                    Isbn geçersizdir bilgisi
+
+
+                                                    Ne olursa olsun book not found exception olursa program devam etmeli
+                                                    ikisi aynı anda olamaz ya sağ taraf ya da sol taraf tercih edilir
 
 
 
+Öreneğin biz isbn ile library'ye book eklemek istiyor olalım.
+
+* library-service feign client register oldu
+
+* book-service eureka server client register oldu
+
+* isbn numarası ve library id ile library-service'e (addBookToLibrary) post methodu ile istek atıldı.
+
+* eureka server library-service book-service in portunu ve name bilgisini döndü
+
+* library-service feign client ile bu bilgileri kullanarak book-service ile haberleşti ve feign client aracılığı ile getBookByIsbn methodu ile eşleşerek istek atıldı
+
+* book service den geriye ya bookId dönecek yada isbn no ile eşleşen book bulanamayıp BookNotFoundException hatası dönecek
+
+* olması durumunda herşey doğru gerçekleşir ve id döner geri dönen id library userBook listesine edklenir ve db ye kaydedilir.
+
+*** fakat BookNotFoundException hatası dönmesi durmunda db ye boş birşey kaydederim
+     veya library service de if return id null sa kontrolu yaparsam library service patlar
+        !bir hata sonucunda ms ler çalışmayı durdurusa bu ms mimari yaklaşımı değildir.( Hataya dayanıklı olmalı resilience)
+
+
+    Öncelikle generalExceptionhandler oluşturuyoryuz(@RestControllerAdvice annottaioonu ile)
+
+        @ExceptionHandler(LibraryNotFoundException.class)
+        public ResponseEntity<?> handle(LibraryNotFoundException exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+
+        }
+
+        @ExceptionHandler(BookNotFoundException.class)
+        public ResponseEntity<ExceptionMessage> handle(BookNotFoundException exception) {
+            return new ResponseEntity<>(exception.getExceptionMessage(), HttpStatus.NOT_FOUND);
+        }
+
+
+        Fakat book bulanamaması  durumda NOT_FOUND yerine feign client decoder errorun yakalanması için  HttpStatus.resolve(exception.getExceptionMessage().status()) yazılır
+
+        @ExceptionHandler(LibraryNotFoundException.class)
+        public ResponseEntity<?> handle(LibraryNotFoundException exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+
+        }
+
+        @ExceptionHandler(BookNotFoundException.class)
+        public ResponseEntity<ExceptionMessage> handle(BookNotFoundException exception) {
+            return new ResponseEntity<>(exception.getExceptionMessage(), HttpStatus.resolve(exception.getExceptionMessage().status()));
+        }
+
+
+  Bundan dolayı feign clintdan alınan bu hatayı uygun bir reponeEntity'e çevirip kullanıcıya hata mesajı, bilgilendirme mesajı gönderilmelidir.)
 
 
 
+    ******** RetreiveMessageErrorDecoder:  **********
+
+Book-service den gelen book not found hatasını algılayan feign client ın döneceği hatayı özelliştirip kullanıcıya detaylı bilgi sunmalıyız
+
+RetreiveMessageErrorDecoder feign client arayuzunun geliştirdiği ErrorDecoder ı implement eder.
+
+ private final ErrorDecoder errorDecoder = new Default();
+
+    @Override
+    public Exception decode(String methodKey, Response response) {
+        ExceptionMessage message = null;
+        try (InputStream body = response.body().asInputStream()){
+            message = new ExceptionMessage((String) response.headers().get("date").toArray()[0],
+                    response.status(),
+                    HttpStatus.resolve(response.status()).getReasonPhrase(),
+                    IOUtils.toString(body, StandardCharsets.UTF_8),
+                    response.request().url());
+
+        } catch (IOException exception) {
+            return new Exception(exception.getMessage());
+        }
+        switch (response.status()) {
+            case 404:
+                throw new BookNotFoundException(message);
+            default:
+                return errorDecoder.decode(methodKey, response);
+        }
+    }
+
+    Öncelikle errorDecode nesnesi oluşturduk. new Default decode özelliğini kullanıyoruz(feign excepitonu excepitona çevirir)
+
+    daha sonra gönderceğimiz error mesajlar için  ExcepitonMessage classı oluşturduk. yani hatada neler fırlatıcam onların classını oluşturduk.
+        public record ExceptionMessage (String timestamp,int status,String error,String message, String path){}
+
+daha sonra feignclient ın yakaladuğı hata mesajını eğer repsone status 404 ise elde ettiğim bu mesajı BookNotFoundExceptiona parametre olarak bastırıyorum ve exception handler bunu hata olduğu zaman yakalayıp clienta fırlatıyor
+Exception handlerın yakalaması içinde HttpStatus.resolve(exception.getExceptionMessage().status()) yazılır
+        @ExceptionHandler(LibraryNotFoundException.class)
+        public ResponseEntity<?> handle(LibraryNotFoundException exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+
+        }
+
+        @ExceptionHandler(BookNotFoundException.class)
+        public ResponseEntity<ExceptionMessage> handle(BookNotFoundException exception) {
+            return new ResponseEntity<>(exception.getExceptionMessage(), HttpStatus.resolve(exception.getExceptionMessage().status()));
+        }
+eğer 404 den ayrı bir durum varsa default: decoder ın kendi sürümünü başlat
+
+
+Ve bu errorDecoder ın çalışması için libraryApplicationPropperties de bean ı oluşturuduk.
+oluşturmasaydık default olarak 500 ınternal server error alıcaktık
+
+ve bu hataları feignlog seviyesinde de ayarlayabiliriz
 
 
 

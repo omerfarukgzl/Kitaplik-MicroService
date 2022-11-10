@@ -4,7 +4,7 @@ import com.kitaplik.libraryservice.dto.CreateBookRequest;
 import com.kitaplik.libraryservice.dto.BookDto;
 import com.kitaplik.libraryservice.dto.BookIdDto;
 import com.kitaplik.libraryservice.dto.LibraryDto;
-import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -16,12 +16,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+
 @FeignClient(name = "book-service", path = "/v1/book")
 public interface BookServiceClient {
 
-    Logger logger = LoggerFactory.getLogger(BookServiceClient.class);
+/*    Logger logger = LoggerFactory.getLogger(BookServiceClient.class);
 
-    /*    default ResponseEntity<BookIdDto> getBookFallback(String isbn, Exception exception) {
+      default ResponseEntity<BookIdDto> getBookFallback(String isbn, Exception exception) {
         logger.info("Book not found by isbn " + isbn + ", returning default BookDto object");
         return ResponseEntity.ok(new BookIdDto("default-book", "default-isbn"));
 
