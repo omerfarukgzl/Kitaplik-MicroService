@@ -560,6 +560,9 @@ Bizde bu uğraşdan kurtulmak için Spring Cloud Config Server kullanırız. con
 
 uygulama ayağı kalkarken library service spring cloud configden kendisiyle ilgili config dosyasını ondan alır ve conf yapar.
 
+
+Spring cloud config server uygulaması uygulamalarımızın configlerini tek bir yerden yönetmemizi sağlar.
+
                     library service 8081/dev                book service 8081/dev
                     library service 8080/default            book service 8080/default
                                          /\                 /\
@@ -589,46 +592,82 @@ biz bu uygulamada git den okuyacağız
 Spring cloud config server uygulaması oluşturulur.(start spring io)
     config-server artifact ve config server dependency eklendi
 
-    Daha sonra ConfigServerApplication dosyasında main sınıfınfa config sever yapabilmek için @EnableConfigServer annotation eklendi.
-       VE daha sonra @EnableDiscoveryClient ile eureka ya register ettik.(ve eureka client dependency ekledik)
-
-
 
     <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-config-server</artifactId>
     </dependency>
 
+
+    Daha sonra ConfigServerApplication dosyasında main sınıfınfa config sever yapabilmek için @EnableConfigServer annotation eklendi.
+       VE daha sonra @EnableDiscoveryClient ile eureka ya register ettik.(ve eureka client dependency ekledik)
+
     application.properties dosyasına config server configleri yapılır.
 
-    spring.application.name=config-server
-    server.port=8888
-    spring.cloud.config.server.git.uri=
+
+             spring.application.name=config-server
+            server.port=8889
+
+            spring.profiles.active=git
+            # classpathden okumak istendiğinde native
+            # gitten okumak istendiğinde git
+
+            spring.cloud.config.server.git.uri=https://github.com/omerfarukgzl/Kitaplik-MicroService.git
+            #config dosyalarının barındı yer
+
+            spring.cloud.config.server.git.search-paths=config
+            # arayacağı path de birçok dosya olduğu için server path yaptık server location yapmadık ( config file da arayacak)
+
+            logging.level.root=DEBUG
+            #loglama işlemini etkinleştirdik
 
 
+            eureka.instance.instance-id=${spring.application.name}:${random.value}
+            eureka.instance.prefer-ip-address=true
+            eureka.client.service-url.default-zone=${EUREKA_URI:http://localhost:8761/eureka}
+            #eureka register ettik
 
 
-Spring cloud config server uygulaması uygulamalarımızın configlerini tek bir yerden yönetmemizi sağlar.
+    ve daha sonra bu spring cloud config'i kullanack olan client service lere spring cloud config starter-config dependency ekledik
+    ve spring cloud kullanacak ms için spring cloud config ler yapıldı.
+        spring.config.import=optional:configserver:http://localhost:8889/
+        spring.cloud.config.uri=optional:configserver:http://localhost:8889/
+        #optianal : confige ualaşamazsan patlama devam et / config hangi sunucuda çalışıyor
+        spring.cloud.config.import-check.enabled=true
+        #http://localhost:8889/library-service/default ==> nihayetinde üretilen istek
 
 
+    bizim için sadece şuanlık library service library.service.count env değişkenini kullancak ve
+    dev için bu değişken 5
+    user için 4 değerini github daki path den config dosyası içeirisnden alacak
 
+    önce eureka ayağa kaldırdık
+    daha sonra config ayağa kaldırrdık
+    daha sonra api gateway ayağa kaldırıdık
 
+    daha sonra library ayağı kaldırdık ve
+     localhost/8889/library-service/default ve localhost/8889/library-service/dev path lerinden app propertiesleri alabildik
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+http://localhost:8888/v1/library/count pathiyle apigatewaye gömderilen istek properties de profile default olduğu için 4 değeri döndü
+eğer profile dev yapılmış olsaydı library.service.count 5 değerini dönecekti
 
  */
+ */
+
+ */
+
+ */
+ */
+ */
+ */
+
+
+
+
+
+
+
+
 
 
 

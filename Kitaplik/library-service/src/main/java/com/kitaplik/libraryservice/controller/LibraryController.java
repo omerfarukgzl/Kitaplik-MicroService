@@ -24,8 +24,8 @@ public class LibraryController {
     private final LibraryService libraryService;
    // private final Environment environment;
 
-   /* @Value("${library.service.count}")
-    private String count;*/
+    @Value("${library.service.count}")//properies de ki bir değeri okumak
+    private String count;
 
     public LibraryController(LibraryService libraryService) {
         this.libraryService = libraryService;
@@ -63,8 +63,8 @@ public class LibraryController {
         return ResponseEntity.ok(libraryService.getAllLibraries());
     }
 
-  /*  @GetMapping("/count")
+    @GetMapping("/count")
     public ResponseEntity<String> getCount() {
         return ResponseEntity.ok("Library count is" + count);
-    }*/
+    }
 }
