@@ -532,7 +532,106 @@ spring.zipkin.base-url=http://localhost:9411
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+*****************************************************************Spring Cloud Config Server****************************************************************************************
+
+Neden Centralize configuration  ihtiyacı doğmuştur?
+Ms lerin configuration'larını tek bir yerden yönetmek için doğmuştur.
+Böylelikle service'in configları değişeceği zaman tek bir yerden değişiklik yapılabilir
+
+uygulamamız örneğin library service için bir developer birde user instance 'ı çalıştırıyor ve
+dev instance ında kullanılacak bir enviroment değişkeni user instance ında farklı olabilir.
+örneğin dev için farklı db username password user için farklı ve default username password ile farklı db lere bağlanacak.
+Bu yanlızca library service için olsun ve diğer ms ler için farklı env değişkenleri olsun ve toplamda 200 ms olsun
+bu bizim için uğraş verici zorluktadır.
+Bizde bu uğraşdan kurtulmak için Spring Cloud Config Server kullanırız. configleri tek bir yerden yöeneterek yaparız.
+
+
+
+uygulama ayağı kalkarken library service spring cloud configden kendisiyle ilgili config dosyasını ondan alır ve conf yapar.
+
+                    library service 8081/dev                book service 8081/dev
+                    library service 8080/default            book service 8080/default
+                                         /\                 /\
+                                         |                  |
+                                         |                  |
+                                         |                  |
+                                         |                  |
+                                         |                  |
+                                        Spring Cloud Config
+                                                  /\
+                                                  |
+                                                  |
+                                                Config     library-service-dev.properties
+                                   classpath               library-service.properties
+                                   git                     book-service-dev.properties
+                                   vault                   book-service.properties
+                      configler bunlar dasaklanabilir
+
+properties de spring.profiles.active'i
+# classpathden okumak istendiğinde native
+# gitten okumak istendiğinde git
+
+biz bu uygulamada git den okuyacağız
+
+
+
+Spring cloud config server uygulaması oluşturulur.(start spring io)
+    config-server artifact ve config server dependency eklendi
+
+    Daha sonra ConfigServerApplication dosyasında main sınıfınfa config sever yapabilmek için @EnableConfigServer annotation eklendi.
+       VE daha sonra @EnableDiscoveryClient ile eureka ya register ettik.(ve eureka client dependency ekledik)
+
+
+
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-config-server</artifactId>
+    </dependency>
+
+    application.properties dosyasına config server configleri yapılır.
+
+    spring.application.name=config-server
+    server.port=8888
+    spring.cloud.config.server.git.uri=
+
+
+
+
+Spring cloud config server uygulaması uygulamalarımızın configlerini tek bir yerden yönetmemizi sağlar.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  */
+
+
+
 
 
 
