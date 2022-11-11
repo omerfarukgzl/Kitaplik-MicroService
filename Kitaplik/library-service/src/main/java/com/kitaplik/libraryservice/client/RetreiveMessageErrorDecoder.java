@@ -16,6 +16,7 @@ public class RetreiveMessageErrorDecoder implements ErrorDecoder {
 
     private final ErrorDecoder errorDecoder = new Default();
 
+
     @Override
     public Exception decode(String methodKey, Response response) {
         ExceptionMessage message = null;

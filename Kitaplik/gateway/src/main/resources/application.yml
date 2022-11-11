@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: book-service
+          uri: lb://book-service
+          predicates:
+            - Path=/v1/book/**
+        - id: library-service
+          uri: lb://library-service
+          predicates:
+            - Path=/v1/library/**
+#id: name
+#uri:bağlanılacak servisin app name 'i        -
+#predicates: hangi controller lar kullanılacak
+
+  zipkin:
+    base-url: http://localhost:9411
+
+server:
+  port: 8888
+
+eureka:
+    client:
+        serviceUrl:
+            registerWithEureka: true
+            defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+    instance:
+        preferIpAddress: true
+
+
+manangment:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+#bu kod ile tüm endpointleri açtık.
+
+
+

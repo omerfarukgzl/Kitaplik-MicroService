@@ -1,6 +1,6 @@
 public class Notes {
 
-    /*                      ----------------
+/*                    ----------------
                            |               |
                 istek      |     Book      |
     Client ----------->api |               |------------Db
@@ -204,7 +204,11 @@ Library Service oluşturulması:
 
     methodu library-service den gelen id no su ile book bilgisini book service ms den elde etmeye yarar.
 
+Not:
+ResponseEntity<BookIdDto> getBookByIsbn(@PathVariable(value = "isbn") String isbn);
 
+ value yazılmasının sebebi feign client PathVariable yı controller lardaki gibi isim aynı isse algıla işini yapamıyor
+ value değeri verilmesi gerek
 
 
     *********************************  Dto:  *******************************************
@@ -387,6 +391,100 @@ fakat yeni bir instance nasıl oluşturum ? bu client dan gelen istek yeni insta
     istek gelir istekde token vardır  api getaway bağlı olduğu sunucudan tokenı doğrular ve isteği devam ettiri.
 
 
+api gatewayde iyi bir cache alhoritması vardır her istekde db ye sormaz. önceden cache alır ve istek gelir gelmez cache den bakar varsa cache den verir yoksa db ye sorgu yapar ve cache e ekler.
+
+************************** starting api gateway *******************
+
+            yeni bir ms oluşturmak için yeni bir proje oluşturulur.
+            start.spring.io dan gateway için dependency eklenir .Gateway dependecy 'ai eklenir.
+            ve Bu gateway'i eureka ya da regster etmek istiyoruz.
+            eureka'ya register olmasi için eureka discovery client dependency eklenir.
+
+
+      ***********Not:***********
+      yeni bir proje eklendiği zaman yanlızca file olarak gelir bunun spring boot projesi olması için
+      sağ üstteki maven a tıklanır oradan + seçeneği seçilir ve yeni eklenen proje seçilir.
+      ***********Not:***********
+
+     bu projede application.yml dosyası kullanacağız. applicaiton.yml dosyası application.properties ile aynı işi yapar fakat yazımı farklıdır.
+
+spring:
+  application:
+    name:gateway-service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: book-service
+          uri: lb://book-service
+          predicates:
+            - Path=/v1/book/**
+        - id: library-service
+          uri: lb://library-service
+          predicates:
+            - Path=/v1/library/**
+#id: name
+#uri:bağlanılacak servisin app name 'i        -
+#predicates: hangi controller lar kullanılacak
+
+#lb : load balancing demek eğer yazılamasydı instance lara bağlanamazdı
+
+
+server:
+  port:8888
+
+eureka:
+    client:
+        serviceUrl:
+            registerWithEureka: true
+            defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+    instance:
+        preferIpAddress: true
+
+
+    bu gateway service eureka ya register olacak ve eureka da gözükecek.
+    ve bu gateway service eureka da gözükeceği için clientlar bu gateway service e istek atacak.
+    ve bu gateway service istekleri load balancing ile yönlendirecek.
+    ve bu gateway service istekleri security layer ile kontrol edecek.
+    ve bu gateway service istekleri cache algoritması ile kontrol edecek.
+
+
+    Artık library service yapılan localhost:8080/v1/library isteği
+        8888 portunda çalışan api gateway üzerinden localhost:8888/v1/library isteği ile yapılacak
+
+    ve böylece ilk istekleri api gateway almış oldu.
+    ve diğer serviceleri erişime kapattık. serviceleri dışardan erişime kapatmanın bir yolu random ip ataması yaparsak uygulama dısşından biri bulamaz ve istek atamaz
+    Yanlızca ip bilenler bağlanabilir.
+
+
+
+    Şimdi ise library service i scale edip scale dilen service i de ayağı kaldırmak istiyoruz .
+     Fakat scale edilen service 'inde eureka ya register olmasını istiyoruz.
+            eureka.instance.instance-id=${spring.application.name}:${random.value}
+
+
+
+********************* Actuator  **********************
+
+Actuator için dependency eklenir============>		<dependency>
+                                                        <groupId>org.springframework.boot</groupId>
+                                                        <artifactId>spring-boot-starter-actuator</artifactId>
+                                                    </dependency>
+
+
+Actuator ile Uygulamamızı izlemek, ölçümleri toplamak, trafiği anlamak veya veritabanımızın durumu izlenir.
+
+manangment:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+    bu kod ile tüm endpointleri açtık.
+    api gateway application.yml dosyasında actuator configleri yapıldı.
+    ve localhost:8888/actuator/ pathinde uygulamamızın tüm bilgilerini,metriklerini tüm endpointleri ile  görüntüleyebildik.
 
 
 
@@ -405,6 +503,27 @@ fakat yeni bir instance nasıl oluşturum ? bu client dan gelen istek yeni insta
 
 
 
+ ***************************************************   Distributed Log Trace **************************************************************************************
+
+Zipkin dağıtık olan logları tek bir yere toplayan özel bir uygulamadır.
+
+ docker ile zipkin uygulamasını 9411 portunda çalıştırdık.http://localhost:9411/zipkin/ adresinden zipkin uygulamasına ulaşabildik.
+
+    zipkin uygulamasını çalıştırdıktan sonra logların görülmesi için service de zipkin dependency eklenir.
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-sleuth</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-sleuth-zipkin</artifactId>
+		</dependency>
+
+
+ve application.properties dosyasına zipkin configleri yapılır.
+spring.zipkin.base-url=http://localhost:9411
 
 
 
@@ -413,6 +532,7 @@ fakat yeni bir instance nasıl oluşturum ? bu client dan gelen istek yeni insta
 
 
 
+ */
 
 
 
@@ -420,5 +540,5 @@ fakat yeni bir instance nasıl oluşturum ? bu client dan gelen istek yeni insta
 
 
 
-     */
+
 }

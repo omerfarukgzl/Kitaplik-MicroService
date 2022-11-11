@@ -1,20 +1,16 @@
 package com.kitaplik.libraryservice.controller;
 
-import com.kitaplik.libraryservice.dto.CreateBookRequest;
 import com.kitaplik.libraryservice.dto.AddBookRequest;
 import com.kitaplik.libraryservice.dto.LibraryDto;
 import com.kitaplik.libraryservice.service.LibraryService;
 import org.hibernate.cfg.Environment;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RestController
 @RefreshScope
@@ -22,14 +18,14 @@ import org.slf4j.LoggerFactory;
 public class LibraryController {
     Logger logger = LoggerFactory.getLogger(LibraryController.class);
     private final LibraryService libraryService;
-   // private final Environment environment;
+    private final Environment environment;
 
    /* @Value("${library.service.count}")
     private String count;*/
 
-    public LibraryController(LibraryService libraryService) {
+    public LibraryController(LibraryService libraryService, Environment environment) {
         this.libraryService = libraryService;
-        //this.environment = environment;
+        this.environment = environment;
     }
 
     @GetMapping("{id}")
@@ -39,8 +35,7 @@ public class LibraryController {
 
     @PostMapping
     public ResponseEntity<LibraryDto> createLibrary() {
-       // logger.info("Library created on port number " + environment.getProperty("local.server.port"));
-
+   // logger.info("Library created on port number " + environment.getProperty("local.server.port")); // library-service hangi portta çalışıyor logla
         return ResponseEntity.ok(libraryService.createLibrary());
     }
    /*
